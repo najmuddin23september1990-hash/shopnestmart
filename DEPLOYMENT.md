@@ -22,9 +22,17 @@ Set these on the hosting provider:
 HOST=0.0.0.0
 PORT=provided by host
 ADMIN_PASSWORD=change-this-password
+ORDER_NOTIFY_EMAIL=your-email@example.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_SECURE=false
 ```
 
 Most hosts automatically provide `PORT`, so only set it if the host asks.
+
+For Gmail notifications, use a Gmail App Password instead of your normal Gmail password.
 
 ## Start Command
 

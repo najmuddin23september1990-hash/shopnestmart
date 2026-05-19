@@ -3,6 +3,7 @@ const https = require("https");
 const fs = require("fs");
 const fsp = require("fs/promises");
 const path = require("path");
+const nodemailer = require("nodemailer");
 
 const root = __dirname;
 const dataDir = path.join(root, "data");
@@ -13,6 +14,16 @@ const adminPassword = process.env.ADMIN_PASSWORD || "ShopNest@123";
 const adminSession = `shopnest-${Buffer.from(adminPassword).toString("base64url")}`;
 const razorpayKeyId = process.env.RAZORPAY_KEY_ID || "";
 const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || "";
+const notifyEmail = process.env.ORDER_NOTIFY_EMAIL || "";
+const smtpConfig = {
+  host: process.env.SMTP_HOST || "",
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: process.env.SMTP_SECURE === "true",
+  auth: {
+    user: process.env.SMTP_USER || "",
+    pass: process.env.SMTP_PASS || "",
+  },
+};
 const types = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -145,6 +156,22 @@ function createId(prefix) {
 
 function cleanText(value) {
   return String(value || "").trim();
+}
+
+function emailEnabled() {
+  return Boolean(notifyEmail && smtpConfig.host && smtpConfig.auth.user && smtpConfig.auth.pass);
+}
+
+async function sendNotification(subject, lines) {
+  if (!emailEnabled()) return;
+
+  const transporter = nodemailer.createTransport(smtpConfig);
+  await transporter.sendMail({
+    from: `"Shop Nest" <${smtpConfig.auth.user}>`,
+    to: notifyEmail,
+    subject,
+    text: lines.join("\n"),
+  });
 }
 
 function createRazorpayOrder(payload) {
@@ -301,6 +328,15 @@ async function handleApi(request, response, url) {
       currentStore.enquiries.unshift(nextEnquiry);
       return nextEnquiry;
     });
+    sendNotification("New Shop Nest enquiry", [
+      "New enquiry received.",
+      "",
+      `Name: ${enquiry.name}`,
+      `Phone: ${enquiry.phone}`,
+      `Product: ${enquiry.product || "-"}`,
+      `Requirement: ${enquiry.requirement}`,
+      `Time: ${enquiry.createdAt}`,
+    ]).catch((error) => console.error("Email notification failed:", error.message));
     sendJson(response, 201, enquiry);
     return;
   }
@@ -370,6 +406,18 @@ async function handleApi(request, response, url) {
       currentStore.orders.unshift(nextOrder);
       return nextOrder;
     });
+    sendNotification("New paid order on Shop Nest", [
+      "Payment successful. New paid order received.",
+      "",
+      `Customer: ${order.customer}`,
+      `Phone: ${order.phone}`,
+      `Product: ${order.product}`,
+      `Quantity: ${order.quantity || "-"}`,
+      `Amount: ${order.amount}`,
+      `Payment ID: ${order.paymentId}`,
+      `Razorpay Order ID: ${order.razorpayOrderId}`,
+      `Time: ${order.createdAt}`,
+    ]).catch((error) => console.error("Email notification failed:", error.message));
     sendJson(response, 201, order);
     return;
   }
@@ -408,6 +456,17 @@ async function handleApi(request, response, url) {
       currentStore.orders.unshift(nextOrder);
       return nextOrder;
     });
+    sendNotification("New manual order on Shop Nest", [
+      "New manual order added in admin panel.",
+      "",
+      `Customer: ${order.customer}`,
+      `Phone: ${order.phone}`,
+      `Product: ${order.product}`,
+      `Quantity: ${order.quantity || "-"}`,
+      `Amount: ${order.amount || "-"}`,
+      `Status: ${order.status}`,
+      `Time: ${order.createdAt}`,
+    ]).catch((error) => console.error("Email notification failed:", error.message));
     sendJson(response, 201, order);
     return;
   }
