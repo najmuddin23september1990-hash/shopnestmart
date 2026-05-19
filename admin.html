@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | Shop Nest By Najmuddin Bagh Wala</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <a class="brand" href="index.html" aria-label="Shop Nest By Najmuddin Bagh Wala home">
+      <span class="brand-mark">SN</span>
+      <span class="brand-text">
+        <strong>Shop Nest</strong>
+        <small>By Najmuddin Bagh Wala</small>
+      </span>
+    </a>
+    <nav class="admin-topnav" aria-label="Admin navigation">
+      <a href="index.html">Website</a>
+      <a href="#products">Products</a>
+      <a href="#enquiries">Enquiries</a>
+      <a href="#orders">Orders</a>
+      <button class="nav-button" type="button" id="logoutAdmin">Logout</button>
+    </nav>
+  </header>
+
+  <main class="admin-shell">
+    <section class="admin-title">
+      <div>
+        <p class="eyebrow">Admin panel</p>
+        <h1>Manage products, enquiries, and orders.</h1>
+      </div>
+      <button class="button primary" type="button" id="refreshAdmin">Refresh Data</button>
+    </section>
+
+    <section class="admin-stats" aria-label="Admin statistics">
+      <article>
+        <span>Products</span>
+        <strong id="productCount">0</strong>
+      </article>
+      <article>
+        <span>Enquiries</span>
+        <strong id="enquiryCount">0</strong>
+      </article>
+      <article>
+        <span>Orders</span>
+        <strong id="orderCount">0</strong>
+      </article>
+    </section>
+
+    <section class="admin-grid" id="products">
+      <form class="admin-card" id="productForm">
+        <div>
+          <p class="eyebrow">Products</p>
+          <h2>Add product</h2>
+        </div>
+        <label>
+          Product Name
+          <input type="text" name="name" placeholder="Steel Wall Hooks" required>
+        </label>
+        <label>
+          Category
+          <input type="text" name="category" placeholder="Hooks & fittings" required>
+        </label>
+        <label>
+          Price
+          <input type="text" name="price" placeholder="Ask for current rate">
+        </label>
+        <label>
+          Image Path
+          <input type="text" name="image" placeholder="assets/wall-hook-5.jpg">
+        </label>
+        <label>
+          Stock
+          <input type="text" name="stock" placeholder="Available">
+        </label>
+        <label>
+          Description
+          <textarea name="description" rows="4" placeholder="Product details..." required></textarea>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" name="featured">
+          Featured product
+        </label>
+        <button class="button primary" type="submit">Add Product</button>
+        <p class="form-note" id="productNote" aria-live="polite"></p>
+      </form>
+
+      <section class="admin-card">
+        <div>
+          <p class="eyebrow">Live products</p>
+          <h2>Product list</h2>
+        </div>
+        <div class="admin-list" id="adminProducts"></div>
+      </section>
+    </section>
+
+    <section class="admin-card" id="enquiries">
+      <div>
+        <p class="eyebrow">Enquiries</p>
+        <h2>Customer enquiries</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Product</th>
+              <th>Requirement</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="enquiryRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-grid" id="orders">
+      <form class="admin-card" id="orderForm">
+        <div>
+          <p class="eyebrow">Orders</p>
+          <h2>Add order</h2>
+        </div>
+        <label>
+          Customer Name
+          <input type="text" name="customer" placeholder="Customer name" required>
+        </label>
+        <label>
+          Phone
+          <input type="tel" name="phone" placeholder="Mobile number" required>
+        </label>
+        <label>
+          Product
+          <input type="text" name="product" placeholder="Steel Wall Hooks" required>
+        </label>
+        <label>
+          Quantity
+          <input type="text" name="quantity" placeholder="50 pieces">
+        </label>
+        <label>
+          Amount
+          <input type="text" name="amount" placeholder="Total amount">
+        </label>
+        <label>
+          Status
+          <input type="text" name="status" placeholder="Pending">
+        </label>
+        <button class="button primary" type="submit">Add Order</button>
+        <p class="form-note" id="orderNote" aria-live="polite"></p>
+      </form>
+
+      <section class="admin-card">
+        <div>
+          <p class="eyebrow">Order book</p>
+          <h2>Orders</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="orderRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
