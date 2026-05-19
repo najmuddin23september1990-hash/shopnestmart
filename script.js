@@ -17,9 +17,11 @@ siteNav.addEventListener("click", (event) => {
 });
 
 function productCard(product) {
+  const image = (product.image || "wall-hook-5.jpg").replace("assets/wall-hook-5.jpg", "wall-hook-5.jpg");
+
   return `
     <article class="project-card">
-      <img src="${product.image}" alt="${product.name}">
+      <img src="${image}" alt="${product.name}" onerror="this.src='wall-hook-5.jpg'">
       <div>
         <span>${product.category}</span>
         <h3>${product.name}</h3>

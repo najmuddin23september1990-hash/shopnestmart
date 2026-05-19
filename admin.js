@@ -44,18 +44,22 @@ function emptyRow(message, colspan) {
 
 function renderProducts(products) {
   productCount.textContent = products.length;
-  adminProducts.innerHTML = products.map((product) => `
-    <article class="admin-product">
-      <img src="${product.image}" alt="${product.name}">
-      <div>
-        <span>${product.category}</span>
-        <strong>${product.name}</strong>
-        <p>${product.description}</p>
-        <small>${product.price || "Ask for current rate"} | ${product.stock || "Available"}</small>
-      </div>
-      <button class="small-danger" type="button" data-delete-product="${product.id}">Delete</button>
-    </article>
-  `).join("");
+  adminProducts.innerHTML = products.map((product) => {
+    const image = (product.image || "wall-hook-5.jpg").replace("assets/wall-hook-5.jpg", "wall-hook-5.jpg");
+
+    return `
+      <article class="admin-product">
+        <img src="${image}" alt="${product.name}" onerror="this.src='wall-hook-5.jpg'">
+        <div>
+          <span>${product.category}</span>
+          <strong>${product.name}</strong>
+          <p>${product.description}</p>
+          <small>${product.price || "Ask for current rate"} | ${product.stock || "Available"}</small>
+        </div>
+        <button class="small-danger" type="button" data-delete-product="${product.id}">Delete</button>
+      </article>
+    `;
+  }).join("");
 }
 
 function renderEnquiries(enquiries) {
