@@ -46,6 +46,7 @@ const starterData = {
       category: "Hooks & fittings",
       price: "Ask for current rate",
       image: "wall-hook-5.jpg",
+      images: ["wall-hook-5.jpg"],
       description: "Strong wall-mounted hooks with round plate fitting for display, storage, and daily use.",
       stock: "Available",
       featured: true,
@@ -56,6 +57,7 @@ const starterData = {
       category: "Display fitting",
       price: "Ask for current rate",
       image: "wall-hook-5.jpg",
+      images: ["wall-hook-5.jpg"],
       description: "Useful for hanging packets, tools, accessories, and lightweight display items in retail setups.",
       stock: "Available",
       featured: false,
@@ -66,6 +68,7 @@ const starterData = {
       category: "Storage support",
       price: "Ask for current rate",
       image: "wall-hook-5.jpg",
+      images: ["wall-hook-5.jpg"],
       description: "Clean wall-mounted hooks for organizing small tools, cables, bags, and daily-use items.",
       stock: "Available",
       featured: false,
@@ -159,6 +162,14 @@ function createId(prefix) {
 
 function cleanText(value) {
   return String(value || "").trim();
+}
+
+function parseImages(value) {
+  const images = String(value || "")
+    .split(",")
+    .map((item) => cleanText(item))
+    .filter(Boolean);
+  return images.length ? images : ["wall-hook-5.jpg"];
 }
 
 function emailEnabled() {
@@ -328,12 +339,14 @@ async function handleApi(request, response, url) {
     }
 
     const product = await updateStore((currentStore) => {
+      const images = parseImages(body.images || body.image);
       const nextProduct = {
         id: createId("product"),
         name: draft.name,
         category: draft.category,
         price: cleanText(body.price) || "Ask for current rate",
-      image: cleanText(body.image) || "wall-hook-5.jpg",
+        image: images[0],
+        images,
         description: draft.description,
         stock: cleanText(body.stock) || "Available",
         featured: Boolean(body.featured),

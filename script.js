@@ -1,6 +1,6 @@
 const navToggle = document.querySelector(".nav-toggle");
 const siteNav = document.querySelector(".site-nav");
-const contactForms = document.querySelectorAll("form");
+const contactForms = document.querySelectorAll("form:not(#paymentForm)");
 const formNote = document.querySelector(".form-note");
 const productGrid = document.querySelector("#productGrid");
 const paymentForm = document.querySelector("#paymentForm");
@@ -19,7 +19,11 @@ siteNav.addEventListener("click", (event) => {
 });
 
 function productCard(product) {
-  const image = (product.image || "wall-hook-5.jpg").replace("assets/wall-hook-5.jpg", "wall-hook-5.jpg");
+  const images = normalizeImages(product);
+  const image = images[0];
+  const thumbs = images.slice(0, 4).map((item) => `
+    <img src="${item}" alt="${product.name}" onerror="this.src='wall-hook-5.jpg'">
+  `).join("");
 
   return `
     <article class="project-card">
@@ -28,10 +32,20 @@ function productCard(product) {
         <span>${product.category}</span>
         <h3>${product.name}</h3>
         <p>${product.description}</p>
+        ${images.length > 1 ? `<div class="product-thumbs">${thumbs}</div>` : ""}
         <small class="product-meta">${product.price || "Ask for current rate"} | ${product.stock || "Available"}</small>
       </div>
     </article>
   `;
+}
+
+function normalizeImages(product) {
+  const source = Array.isArray(product.images) && product.images.length
+    ? product.images
+    : [product.image || "wall-hook-5.jpg"];
+  return source
+    .map((item) => String(item || "").replace("assets/wall-hook-5.jpg", "wall-hook-5.jpg"))
+    .filter(Boolean);
 }
 
 async function loadProducts() {

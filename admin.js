@@ -30,6 +30,15 @@ function formDataToObject(form) {
   return data;
 }
 
+function normalizeImages(product) {
+  const source = Array.isArray(product.images) && product.images.length
+    ? product.images
+    : [product.image || "wall-hook-5.jpg"];
+  return source
+    .map((item) => String(item || "").replace("assets/wall-hook-5.jpg", "wall-hook-5.jpg"))
+    .filter(Boolean);
+}
+
 function formatDate(value) {
   if (!value) return "-";
   return new Date(value).toLocaleString("en-IN", {
@@ -45,7 +54,8 @@ function emptyRow(message, colspan) {
 function renderProducts(products) {
   productCount.textContent = products.length;
   adminProducts.innerHTML = products.map((product) => {
-    const image = (product.image || "wall-hook-5.jpg").replace("assets/wall-hook-5.jpg", "wall-hook-5.jpg");
+    const images = normalizeImages(product);
+    const image = images[0];
 
     return `
       <article class="admin-product">
@@ -54,7 +64,7 @@ function renderProducts(products) {
           <span>${product.category}</span>
           <strong>${product.name}</strong>
           <p>${product.description}</p>
-          <small>${product.price || "Ask for current rate"} | ${product.stock || "Available"}</small>
+          <small>${product.price || "Ask for current rate"} | ${product.stock || "Available"} | ${images.length} image${images.length === 1 ? "" : "s"}</small>
         </div>
         <button class="small-danger" type="button" data-delete-product="${product.id}">Delete</button>
       </article>
