@@ -181,7 +181,7 @@ a {
   inset: 0;
   background:
     linear-gradient(90deg, rgba(28, 27, 24, 0.94), rgba(32, 38, 34, 0.78) 52%, rgba(56, 44, 26, 0.48)),
-    url("assets/wall-hook-5.jpg") center / cover;
+    url("wall-hook-5.jpg") center / cover;
   transform: scale(1.02);
   filter: saturate(0.75);
 }
@@ -834,7 +834,7 @@ td {
   min-height: 100vh;
   background:
     linear-gradient(135deg, rgba(32, 38, 34, 0.92), rgba(56, 44, 26, 0.74)),
-    url("assets/wall-hook-5.jpg") center / cover;
+    url("wall-hook-5.jpg") center / cover;
 }
 
 .login-shell {
