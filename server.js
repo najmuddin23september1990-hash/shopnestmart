@@ -1,4 +1,5 @@
 const http = require("http");
+const https = require("https");
 const fs = require("fs");
 const fsp = require("fs/promises");
 const path = require("path");
@@ -10,6 +11,8 @@ const port = Number(process.env.PORT || 5173);
 const host = process.env.HOST || "0.0.0.0";
 const adminPassword = process.env.ADMIN_PASSWORD || "ShopNest@123";
 const adminSession = `shopnest-${Buffer.from(adminPassword).toString("base64url")}`;
+const razorpayKeyId = process.env.RAZORPAY_KEY_ID || "";
+const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || "";
 const types = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -144,6 +147,47 @@ function cleanText(value) {
   return String(value || "").trim();
 }
 
+function createRazorpayOrder(payload) {
+  return new Promise((resolve, reject) => {
+    if (!razorpayKeyId || !razorpayKeySecret) {
+      reject(new Error("Razorpay keys are not configured."));
+      return;
+    }
+
+    const body = JSON.stringify(payload);
+    const request = https.request(
+      {
+        hostname: "api.razorpay.com",
+        path: "/v1/orders",
+        method: "POST",
+        auth: `${razorpayKeyId}:${razorpayKeySecret}`,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(body),
+        },
+      },
+      (razorpayResponse) => {
+        let data = "";
+        razorpayResponse.on("data", (chunk) => {
+          data += chunk;
+        });
+        razorpayResponse.on("end", () => {
+          const parsed = data ? JSON.parse(data) : {};
+          if (razorpayResponse.statusCode >= 400) {
+            reject(new Error(parsed.error?.description || "Unable to create Razorpay order."));
+            return;
+          }
+          resolve(parsed);
+        });
+      }
+    );
+
+    request.on("error", reject);
+    request.write(body);
+    request.end();
+  });
+}
+
 async function handleApi(request, response, url) {
   const store = await readStore();
 
@@ -258,6 +302,75 @@ async function handleApi(request, response, url) {
       return nextEnquiry;
     });
     sendJson(response, 201, enquiry);
+    return;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/payment-config") {
+    sendJson(response, 200, {
+      keyId: razorpayKeyId,
+      currency: "INR",
+      enabled: Boolean(razorpayKeyId && razorpayKeySecret),
+    });
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/payments/create-order") {
+    const body = await readBody(request);
+    const amount = Number(body.amount);
+
+    if (!Number.isFinite(amount) || amount < 1) {
+      sendJson(response, 400, { error: "Valid amount is required." });
+      return;
+    }
+
+    const order = await createRazorpayOrder({
+      amount: Math.round(amount * 100),
+      currency: "INR",
+      receipt: createId("receipt"),
+      notes: {
+        product: cleanText(body.product),
+        customer: cleanText(body.customer),
+        phone: cleanText(body.phone),
+      },
+    });
+
+    sendJson(response, 201, order);
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/orders/paid") {
+    const body = await readBody(request);
+    const draft = {
+      customer: cleanText(body.customer),
+      phone: cleanText(body.phone),
+      product: cleanText(body.product),
+      amount: cleanText(body.amount),
+      paymentId: cleanText(body.paymentId),
+      razorpayOrderId: cleanText(body.razorpayOrderId),
+    };
+
+    if (!draft.customer || !draft.phone || !draft.product || !draft.paymentId) {
+      sendJson(response, 400, { error: "Customer, phone, product, and payment id are required." });
+      return;
+    }
+
+    const order = await updateStore((currentStore) => {
+      const nextOrder = {
+        id: createId("order"),
+        customer: draft.customer,
+        phone: draft.phone,
+        product: draft.product,
+        quantity: cleanText(body.quantity),
+        amount: draft.amount,
+        status: "Paid",
+        paymentId: draft.paymentId,
+        razorpayOrderId: draft.razorpayOrderId,
+        createdAt: new Date().toISOString(),
+      };
+      currentStore.orders.unshift(nextOrder);
+      return nextOrder;
+    });
+    sendJson(response, 201, order);
     return;
   }
 

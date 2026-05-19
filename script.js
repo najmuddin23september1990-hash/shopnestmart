@@ -3,6 +3,8 @@ const siteNav = document.querySelector(".site-nav");
 const contactForms = document.querySelectorAll("form");
 const formNote = document.querySelector(".form-note");
 const productGrid = document.querySelector("#productGrid");
+const paymentForm = document.querySelector("#paymentForm");
+const paymentNote = document.querySelector("#paymentNote");
 
 navToggle.addEventListener("click", () => {
   const isOpen = siteNav.classList.toggle("is-open");
@@ -71,3 +73,77 @@ contactForms.forEach((contactForm) => {
 });
 
 loadProducts();
+
+async function savePaidOrder(orderData, response) {
+  await fetch("/api/orders/paid", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...orderData,
+      paymentId: response.razorpay_payment_id,
+      razorpayOrderId: response.razorpay_order_id,
+    }),
+  });
+}
+
+async function startPayment(event) {
+  event.preventDefault();
+  if (!window.Razorpay) {
+    paymentNote.textContent = "Payment checkout could not load. Please refresh and try again.";
+    return;
+  }
+
+  const orderData = Object.fromEntries(new FormData(paymentForm).entries());
+  paymentNote.textContent = "Creating payment...";
+
+  try {
+    const configResponse = await fetch("/api/payment-config");
+    const config = await configResponse.json();
+    if (!config.enabled) {
+      throw new Error("Payment gateway is not configured yet.");
+    }
+
+    const orderResponse = await fetch("/api/payments/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderData),
+    });
+    const razorpayOrder = await orderResponse.json();
+    if (!orderResponse.ok) throw new Error(razorpayOrder.error || "Unable to create payment.");
+
+    const checkout = new Razorpay({
+      key: config.keyId,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      name: "Shop Nest By Najmuddin Bagh Wala",
+      description: orderData.product,
+      order_id: razorpayOrder.id,
+      prefill: {
+        name: orderData.customer,
+        contact: orderData.phone,
+      },
+      theme: {
+        color: "#c28b2c",
+      },
+      handler: async (response) => {
+        paymentNote.textContent = "Payment received. Saving order...";
+        await savePaidOrder(orderData, response);
+        paymentNote.textContent = "Payment successful. Your order has been saved.";
+        paymentForm.reset();
+      },
+      modal: {
+        ondismiss: () => {
+          paymentNote.textContent = "Payment was closed before completion.";
+        },
+      },
+    });
+
+    checkout.open();
+  } catch (error) {
+    paymentNote.textContent = error.message;
+  }
+}
+
+if (paymentForm) {
+  paymentForm.addEventListener("submit", startPayment);
+}

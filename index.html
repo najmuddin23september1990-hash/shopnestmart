@@ -172,6 +172,38 @@
       </ol>
     </section>
 
+    <section class="payment-section" id="payment">
+      <div>
+        <p class="eyebrow">Online payment</p>
+        <h2>Pay securely after confirming your order.</h2>
+        <p>Use this payment form only after the product, quantity, and amount are confirmed with Shop Nest By Najmuddin Bagh Wala.</p>
+      </div>
+      <form id="paymentForm" class="payment-form">
+        <label>
+          Name
+          <input type="text" name="customer" placeholder="Customer name" required>
+        </label>
+        <label>
+          Phone
+          <input type="tel" name="phone" placeholder="Mobile number" required>
+        </label>
+        <label>
+          Product
+          <input type="text" name="product" placeholder="Steel Wall Hooks" required>
+        </label>
+        <label>
+          Quantity
+          <input type="text" name="quantity" placeholder="Example: 50 pieces">
+        </label>
+        <label>
+          Amount (INR)
+          <input type="number" name="amount" placeholder="Enter amount" min="1" step="1" required>
+        </label>
+        <button class="button primary" type="submit">Pay Now</button>
+        <p class="form-note" id="paymentNote" aria-live="polite"></p>
+      </form>
+    </section>
+
     <section class="contact" id="contact">
       <div>
         <p class="eyebrow">Contact</p>
@@ -209,6 +241,7 @@
     <span>Hardware products, tools, fittings, and repair essentials.</span>
   </footer>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

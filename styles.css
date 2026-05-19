@@ -342,6 +342,7 @@ h3 {
 
 .section,
 .process,
+.payment-section,
 .contact {
   padding: clamp(72px, 10vw, 132px) clamp(18px, 4vw, 56px);
 }
@@ -587,6 +588,27 @@ h3 {
   grid-template-columns: minmax(0, 0.9fr) minmax(300px, 1.1fr);
   gap: clamp(32px, 7vw, 92px);
   align-items: start;
+}
+
+.payment-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(300px, 1.1fr);
+  gap: clamp(32px, 7vw, 92px);
+  align-items: start;
+  background: #fffaf1;
+}
+
+.payment-section p {
+  max-width: 620px;
+  color: var(--muted);
+}
+
+.payment-form {
+  padding: clamp(20px, 3vw, 30px);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(27, 31, 34, 0.07);
 }
 
 form {
@@ -905,6 +927,7 @@ td {
   .product-info,
   .split,
   .process,
+  .payment-section,
   .contact {
     grid-template-columns: 1fr;
   }
