@@ -15,6 +15,9 @@ const adminSession = `shopnest-${Buffer.from(adminPassword).toString("base64url"
 const razorpayKeyId = process.env.RAZORPAY_KEY_ID || "";
 const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || "";
 const notifyEmail = process.env.ORDER_NOTIFY_EMAIL || "";
+const brevoApiKey = process.env.BREVO_API_KEY || "";
+const brevoSenderEmail = process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || notifyEmail;
+const brevoSenderName = process.env.BREVO_SENDER_NAME || "Shop Nest";
 const smtpConfig = {
   host: process.env.SMTP_HOST || "",
   port: Number(process.env.SMTP_PORT || 587),
@@ -159,11 +162,68 @@ function cleanText(value) {
 }
 
 function emailEnabled() {
-  return Boolean(notifyEmail && smtpConfig.host && smtpConfig.auth.user && smtpConfig.auth.pass);
+  return Boolean(notifyEmail && (brevoApiKey || (smtpConfig.host && smtpConfig.auth.user && smtpConfig.auth.pass)));
+}
+
+function sendBrevoApiEmail(subject, lines) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      sender: {
+        name: brevoSenderName,
+        email: brevoSenderEmail,
+      },
+      to: [
+        {
+          email: notifyEmail,
+        },
+      ],
+      subject,
+      textContent: lines.join("\n"),
+    });
+
+    const request = https.request(
+      {
+        hostname: "api.brevo.com",
+        path: "/v3/smtp/email",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(body),
+          "api-key": brevoApiKey,
+        },
+      },
+      (brevoResponse) => {
+        let data = "";
+        brevoResponse.on("data", (chunk) => {
+          data += chunk;
+        });
+        brevoResponse.on("end", () => {
+          if (brevoResponse.statusCode >= 400) {
+            reject(new Error(data || "Brevo API email failed."));
+            return;
+          }
+          resolve(data);
+        });
+      }
+    );
+
+    request.on("error", reject);
+    request.write(body);
+    request.end();
+  });
 }
 
 async function sendNotification(subject, lines) {
-  if (!emailEnabled()) return;
+  if (!emailEnabled()) {
+    console.log("Email notification skipped: SMTP environment variables are incomplete.");
+    return;
+  }
+
+  if (brevoApiKey) {
+    await sendBrevoApiEmail(subject, lines);
+    console.log(`Email notification sent with Brevo API: ${subject}`);
+    return;
+  }
 
   const transporter = nodemailer.createTransport(smtpConfig);
   await transporter.sendMail({
@@ -172,6 +232,7 @@ async function sendNotification(subject, lines) {
     subject,
     text: lines.join("\n"),
   });
+  console.log(`Email notification sent: ${subject}`);
 }
 
 function createRazorpayOrder(payload) {

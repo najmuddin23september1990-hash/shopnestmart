@@ -23,6 +23,9 @@ HOST=0.0.0.0
 PORT=provided by host
 ADMIN_PASSWORD=change-this-password
 ORDER_NOTIFY_EMAIL=your-email@example.com
+BREVO_API_KEY=your-brevo-api-key
+BREVO_SENDER_EMAIL=verified-sender@example.com
+BREVO_SENDER_NAME=Shop Nest
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
@@ -32,7 +35,7 @@ SMTP_SECURE=false
 
 Most hosts automatically provide `PORT`, so only set it if the host asks.
 
-For Gmail notifications, use a Gmail App Password instead of your normal Gmail password.
+For reliable notifications on Render Free, prefer `BREVO_API_KEY` because free Render services can block outbound SMTP ports.
 
 ## Start Command
 
