@@ -69,16 +69,16 @@ a {
 
 .brand-logo {
   display: block;
-  width: clamp(176px, 20vw, 252px);
+  width: clamp(210px, 24vw, 310px);
   height: auto;
 }
 
 .brand-logo.large {
-  width: clamp(230px, 31vw, 390px);
+  width: clamp(300px, 39vw, 520px);
 }
 
 .footer-logo .brand-logo {
-  width: clamp(190px, 24vw, 300px);
+  width: clamp(220px, 28vw, 360px);
 }
 
 .brand-mark {
@@ -1051,11 +1051,11 @@ td {
   }
 
   .brand-logo {
-    width: min(212px, 100%);
+    width: min(236px, 100%);
   }
 
   .brand-logo.large {
-    width: min(100%, 300px);
+    width: min(100%, 360px);
   }
 
   .brand-text strong {
