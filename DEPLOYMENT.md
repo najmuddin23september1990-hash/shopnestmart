@@ -22,6 +22,8 @@ Set these on the hosting provider:
 HOST=0.0.0.0
 PORT=provided by host
 ADMIN_PASSWORD=change-this-password
+MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/shopnestmart?retryWrites=true&w=majority
+MONGODB_DB=shopnestmart
 ORDER_NOTIFY_EMAIL=your-email@example.com
 BREVO_API_KEY=your-brevo-api-key
 BREVO_SENDER_EMAIL=verified-sender@example.com

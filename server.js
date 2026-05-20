@@ -4,6 +4,7 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const path = require("path");
 const nodemailer = require("nodemailer");
+const { MongoClient } = require("mongodb");
 
 const root = __dirname;
 const dataDir = path.join(root, "data");
@@ -18,6 +19,8 @@ const notifyEmail = process.env.ORDER_NOTIFY_EMAIL || "";
 const brevoApiKey = process.env.BREVO_API_KEY || "";
 const brevoSenderEmail = process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || notifyEmail;
 const brevoSenderName = process.env.BREVO_SENDER_NAME || "Shop Nest";
+const mongoUri = process.env.MONGODB_URI || "";
+const mongoDbName = process.env.MONGODB_DB || "shopnestmart";
 const smtpConfig = {
   host: process.env.SMTP_HOST || "",
   port: Number(process.env.SMTP_PORT || 587),
@@ -79,6 +82,8 @@ const starterData = {
 };
 
 let storeQueue = Promise.resolve();
+let mongoClient;
+let mongoDb;
 
 async function ensureDataFile() {
   await fsp.mkdir(dataDir, { recursive: true });
@@ -97,6 +102,59 @@ async function readStore() {
 
 async function writeStore(store) {
   await fsp.writeFile(dataFile, JSON.stringify(store, null, 2));
+}
+
+async function getDb() {
+  if (!mongoUri) return null;
+  if (mongoDb) return mongoDb;
+
+  mongoClient = new MongoClient(mongoUri);
+  await mongoClient.connect();
+  mongoDb = mongoClient.db(mongoDbName);
+  console.log(`MongoDB connected: ${mongoDbName}`);
+  return mongoDb;
+}
+
+async function seedMongoIfEmpty(db) {
+  const count = await db.collection("products").countDocuments();
+  if (count === 0) {
+    await db.collection("products").insertMany(starterData.products);
+  }
+}
+
+async function listCollection(name) {
+  const db = await getDb();
+  if (!db) {
+    const store = await readStore();
+    return store[name];
+  }
+
+  if (name === "products") await seedMongoIfEmpty(db);
+  return db.collection(name).find({}).sort({ createdAt: -1, _id: -1 }).toArray();
+}
+
+async function insertDocument(name, document) {
+  const db = await getDb();
+  if (!db) return updateStore((store) => {
+    store[name].unshift(document);
+    return document;
+  });
+
+  await db.collection(name).insertOne(document);
+  return document;
+}
+
+async function deleteProduct(id) {
+  const db = await getDb();
+  if (!db) {
+    await updateStore((store) => {
+      store.products = store.products.filter((product) => product.id !== id);
+      return { ok: true };
+    });
+    return;
+  }
+
+  await db.collection("products").deleteOne({ id });
 }
 
 function updateStore(mutator) {
@@ -288,8 +346,6 @@ function createRazorpayOrder(payload) {
 }
 
 async function handleApi(request, response, url) {
-  const store = await readStore();
-
   if (request.method === "GET" && url.pathname === "/api/session") {
     sendJson(response, 200, { authenticated: isAdmin(request) });
     return;
@@ -320,7 +376,7 @@ async function handleApi(request, response, url) {
   }
 
   if (request.method === "GET" && url.pathname === "/api/products") {
-    sendJson(response, 200, store.products);
+    sendJson(response, 200, await listCollection("products"));
     return;
   }
 
@@ -338,22 +394,18 @@ async function handleApi(request, response, url) {
       return;
     }
 
-    const product = await updateStore((currentStore) => {
-      const images = parseImages(body.images || body.image);
-      const nextProduct = {
-        id: createId("product"),
-        name: draft.name,
-        category: draft.category,
-        price: cleanText(body.price) || "Ask for current rate",
-        image: images[0],
-        images,
-        description: draft.description,
-        stock: cleanText(body.stock) || "Available",
-        featured: Boolean(body.featured),
-        createdAt: new Date().toISOString(),
-      };
-      currentStore.products.unshift(nextProduct);
-      return nextProduct;
+    const images = parseImages(body.images || body.image);
+    const product = await insertDocument("products", {
+      id: createId("product"),
+      name: draft.name,
+      category: draft.category,
+      price: cleanText(body.price) || "Ask for current rate",
+      image: images[0],
+      images,
+      description: draft.description,
+      stock: cleanText(body.stock) || "Available",
+      featured: Boolean(body.featured),
+      createdAt: new Date().toISOString(),
     });
     sendJson(response, 201, product);
     return;
@@ -362,17 +414,14 @@ async function handleApi(request, response, url) {
   if (request.method === "DELETE" && url.pathname.startsWith("/api/products/")) {
     if (!requireAdmin(request, response)) return;
     const id = decodeURIComponent(url.pathname.replace("/api/products/", ""));
-    await updateStore((currentStore) => {
-      currentStore.products = currentStore.products.filter((product) => product.id !== id);
-      return { ok: true };
-    });
+    await deleteProduct(id);
     sendJson(response, 200, { ok: true });
     return;
   }
 
   if (request.method === "GET" && url.pathname === "/api/enquiries") {
     if (!requireAdmin(request, response)) return;
-    sendJson(response, 200, store.enquiries);
+    sendJson(response, 200, await listCollection("enquiries"));
     return;
   }
 
@@ -389,18 +438,14 @@ async function handleApi(request, response, url) {
       return;
     }
 
-    const enquiry = await updateStore((currentStore) => {
-      const nextEnquiry = {
-        id: createId("enquiry"),
-        name: draft.name,
-        phone: draft.phone,
-        requirement: draft.requirement,
-        product: cleanText(body.product),
-        status: "New",
-        createdAt: new Date().toISOString(),
-      };
-      currentStore.enquiries.unshift(nextEnquiry);
-      return nextEnquiry;
+    const enquiry = await insertDocument("enquiries", {
+      id: createId("enquiry"),
+      name: draft.name,
+      phone: draft.phone,
+      requirement: draft.requirement,
+      product: cleanText(body.product),
+      status: "New",
+      createdAt: new Date().toISOString(),
     });
     sendNotification("New Shop Nest enquiry", [
       "New enquiry received.",
@@ -464,21 +509,17 @@ async function handleApi(request, response, url) {
       return;
     }
 
-    const order = await updateStore((currentStore) => {
-      const nextOrder = {
-        id: createId("order"),
-        customer: draft.customer,
-        phone: draft.phone,
-        product: draft.product,
-        quantity: cleanText(body.quantity),
-        amount: draft.amount,
-        status: "Paid",
-        paymentId: draft.paymentId,
-        razorpayOrderId: draft.razorpayOrderId,
-        createdAt: new Date().toISOString(),
-      };
-      currentStore.orders.unshift(nextOrder);
-      return nextOrder;
+    const order = await insertDocument("orders", {
+      id: createId("order"),
+      customer: draft.customer,
+      phone: draft.phone,
+      product: draft.product,
+      quantity: cleanText(body.quantity),
+      amount: draft.amount,
+      status: "Paid",
+      paymentId: draft.paymentId,
+      razorpayOrderId: draft.razorpayOrderId,
+      createdAt: new Date().toISOString(),
     });
     sendNotification("New paid order on Shop Nest", [
       "Payment successful. New paid order received.",
@@ -498,7 +539,7 @@ async function handleApi(request, response, url) {
 
   if (request.method === "GET" && url.pathname === "/api/orders") {
     if (!requireAdmin(request, response)) return;
-    sendJson(response, 200, store.orders);
+    sendJson(response, 200, await listCollection("orders"));
     return;
   }
 
@@ -516,19 +557,15 @@ async function handleApi(request, response, url) {
       return;
     }
 
-    const order = await updateStore((currentStore) => {
-      const nextOrder = {
-        id: createId("order"),
-        customer: draft.customer,
-        phone: draft.phone,
-        product: draft.product,
-        quantity: cleanText(body.quantity),
-        amount: cleanText(body.amount),
-        status: cleanText(body.status) || "Pending",
-        createdAt: new Date().toISOString(),
-      };
-      currentStore.orders.unshift(nextOrder);
-      return nextOrder;
+    const order = await insertDocument("orders", {
+      id: createId("order"),
+      customer: draft.customer,
+      phone: draft.phone,
+      product: draft.product,
+      quantity: cleanText(body.quantity),
+      amount: cleanText(body.amount),
+      status: cleanText(body.status) || "Pending",
+      createdAt: new Date().toISOString(),
     });
     sendNotification("New manual order on Shop Nest", [
       "New manual order added in admin panel.",
