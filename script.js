@@ -129,7 +129,8 @@ async function startPayment(event) {
       key: config.keyId,
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
-      name: "Shop Nest By Najmuddin Bagh Wala",
+      name: "Shop Nest",
+      image: `${window.location.origin}/assets/shop-nest-logo-compact.svg`,
       description: orderData.product,
       order_id: razorpayOrder.id,
       prefill: {

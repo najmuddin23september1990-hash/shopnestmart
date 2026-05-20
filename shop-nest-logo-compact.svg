@@ -1,0 +1,22 @@
+<svg width="420" height="420" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="iconTitle iconDesc">
+  <title id="iconTitle">Shop Nest SN Icon</title>
+  <desc id="iconDesc">Compact abstract SN monogram for Shop Nest.</desc>
+  <defs>
+    <linearGradient id="copper" x1="152" y1="72" x2="420" y2="334" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0A16C"/>
+      <stop offset="0.45" stop-color="#C46C3E"/>
+      <stop offset="1" stop-color="#8E452B"/>
+    </linearGradient>
+    <linearGradient id="navy" x1="62" y1="102" x2="358" y2="322" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B2F66"/>
+      <stop offset="1" stop-color="#061936"/>
+    </linearGradient>
+  </defs>
+  <rect width="420" height="420" fill="transparent"/>
+  <path d="M333 76C264 27 159 31 91 93C23 155 17 259 79 328C141 397 248 407 322 350C272 381 199 382 143 349C82 314 55 244 78 181C101 118 164 79 233 86C271 90 305 105 333 76Z" fill="url(#navy)"/>
+  <path d="M348 58C410 112 429 206 388 281C351 349 276 383 205 364C276 359 335 311 353 244C372 175 343 104 285 68C306 59 327 55 348 58Z" fill="url(#copper)"/>
+  <path d="M92 330C51 288 35 229 49 173C65 109 113 62 175 47C128 67 94 105 80 153C58 230 94 310 166 345C218 370 278 365 326 334C261 400 156 395 92 330Z" fill="#082352"/>
+  <text x="111" y="268" fill="#082352" font-family="Georgia, 'Times New Roman', serif" font-size="190" font-weight="700" letter-spacing="-12">S</text>
+  <path d="M233 106L353 291H307L187 106H233Z" fill="url(#copper)"/>
+  <path d="M309 106H354V292H309V106Z" fill="url(#copper)"/>
+</svg>
