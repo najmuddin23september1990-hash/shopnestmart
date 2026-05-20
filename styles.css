@@ -377,7 +377,7 @@ h3 {
 
 .work-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
   padding: 0 clamp(18px, 4vw, 56px) clamp(72px, 10vw, 132px);
 }
@@ -448,6 +448,11 @@ h3 {
 
 .services {
   background: #fffaf1;
+}
+
+.tool-categories {
+  padding-top: clamp(20px, 4vw, 46px);
+  background: #f8f5ee;
 }
 
 .featured-product {
