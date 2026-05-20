@@ -24,7 +24,9 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.5;
+  line-height: 1.58;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 img {
@@ -67,12 +69,12 @@ a {
 
 .brand-logo {
   display: block;
-  width: clamp(190px, 22vw, 270px);
+  width: clamp(176px, 20vw, 252px);
   height: auto;
 }
 
 .brand-logo.large {
-  width: clamp(250px, 34vw, 440px);
+  width: clamp(230px, 31vw, 390px);
 }
 
 .footer-logo .brand-logo {
@@ -153,7 +155,7 @@ a {
 .site-nav {
   gap: clamp(16px, 3vw, 34px);
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
 }
 
@@ -206,7 +208,7 @@ a {
 }
 
 .hero-content {
-  width: min(760px, 100%);
+  width: min(820px, 100%);
   color: #fff;
 }
 
@@ -230,7 +232,7 @@ a {
 .eyebrow {
   margin: 0 0 14px;
   color: var(--coral);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -248,31 +250,33 @@ p {
 }
 
 h1 {
-  max-width: 10ch;
+  max-width: 12ch;
   margin: 0;
-  font-size: clamp(4rem, 13vw, 10rem);
-  line-height: 0.86;
+  font-size: clamp(3.6rem, 9vw, 7.4rem);
+  line-height: 0.92;
   letter-spacing: 0;
 }
 
 h2 {
-  max-width: 13ch;
+  max-width: 15ch;
   margin: 0;
-  font-size: clamp(2.2rem, 5vw, 5.2rem);
-  line-height: 0.95;
+  font-size: clamp(2rem, 4.2vw, 4.2rem);
+  line-height: 1.02;
   letter-spacing: 0;
 }
 
 h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: clamp(1.08rem, 1.7vw, 1.28rem);
+  line-height: 1.2;
 }
 
 .hero-copy {
-  max-width: 640px;
-  margin: 26px 0 0;
+  max-width: 720px;
+  margin: 22px 0 0;
   color: rgba(255, 250, 240, 0.92);
-  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-size: clamp(1rem, 1.55vw, 1.22rem);
+  line-height: 1.65;
 }
 
 .hero-actions {
@@ -345,12 +349,13 @@ h3 {
 
 .metrics strong {
   display: block;
-  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-size: clamp(1.8rem, 4.2vw, 3.7rem);
   line-height: 1;
 }
 
 .metrics span {
   color: var(--muted);
+  font-size: clamp(0.92rem, 1.5vw, 1rem);
   font-weight: 700;
 }
 
@@ -372,7 +377,8 @@ h3 {
   max-width: 620px;
   margin: 0;
   color: var(--muted);
-  font-size: 1.18rem;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.7;
 }
 
 .work-grid {
@@ -398,7 +404,7 @@ h3 {
 }
 
 .project-card div {
-  padding: 22px;
+  padding: 20px;
 }
 
 .project-card span,
@@ -406,8 +412,9 @@ h3 {
   display: block;
   margin-bottom: 10px;
   color: var(--accent);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 800;
+  text-transform: uppercase;
 }
 
 .project-card p,
@@ -415,6 +422,8 @@ h3 {
 .contact p {
   margin: 10px 0 0;
   color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.62;
 }
 
 .text-link {
@@ -481,6 +490,7 @@ h3 {
 .featured-copy p {
   max-width: 620px;
   color: var(--muted);
+  line-height: 1.7;
 }
 
 .featured-copy ul {
@@ -505,7 +515,8 @@ h3 {
 .detail-copy p {
   max-width: 640px;
   color: var(--muted);
-  font-size: 1.15rem;
+  font-size: clamp(1rem, 1.6vw, 1.14rem);
+  line-height: 1.7;
 }
 
 .detail-image {
@@ -635,6 +646,7 @@ h3 {
 .payment-section p {
   max-width: 620px;
   color: var(--muted);
+  line-height: 1.7;
 }
 
 .payment-form {
@@ -750,7 +762,8 @@ footer span:first-child {
 
 .admin-title h1 {
   max-width: 760px;
-  font-size: clamp(2.4rem, 6vw, 5.5rem);
+  font-size: clamp(2.1rem, 5vw, 4.4rem);
+  line-height: 1;
 }
 
 .admin-stats,
@@ -788,7 +801,8 @@ footer span:first-child {
 
 .admin-card h2 {
   max-width: none;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(1.55rem, 2.5vw, 2.2rem);
+  line-height: 1.1;
 }
 
 .admin-list {
@@ -912,8 +926,9 @@ td {
 }
 
 .login-card h1 {
-  max-width: 10ch;
-  font-size: clamp(2.4rem, 8vw, 4.4rem);
+  max-width: 12ch;
+  font-size: clamp(2.1rem, 6.5vw, 3.7rem);
+  line-height: 1;
 }
 
 .login-logo {
@@ -922,6 +937,16 @@ td {
 
 .login-logo .brand-logo {
   width: min(100%, 340px);
+}
+
+@media (max-width: 1100px) {
+  .work-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  h1 {
+    font-size: clamp(3.4rem, 10vw, 6.4rem);
+  }
 }
 
 @media (max-width: 820px) {
@@ -954,6 +979,7 @@ td {
 
   .hero {
     min-height: 88vh;
+    align-items: start;
   }
 
   .hero,
@@ -973,6 +999,10 @@ td {
   .hero-product {
     justify-self: start;
     width: min(360px, 100%);
+  }
+
+  h2 {
+    max-width: 18ch;
   }
 
   .metrics div {
@@ -1038,7 +1068,8 @@ td {
   }
 
   h1 {
-    font-size: clamp(3.5rem, 20vw, 5.8rem);
+    font-size: clamp(3rem, 16vw, 4.7rem);
+    max-width: 11ch;
   }
 
   .hero-actions .button {
