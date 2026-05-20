@@ -130,7 +130,7 @@ async function startPayment(event) {
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
       name: "Shop Nest",
-      image: `${window.location.origin}/assets/shop-nest-logo-compact.svg`,
+      image: `${window.location.origin}/shop-nest-logo-compact.svg`,
       description: orderData.product,
       order_id: razorpayOrder.id,
       prefill: {
